@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вишлист Бьянки 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #f472b6;
+    --rose-light: #fce7f3;
+    --rose-dark: #be185d;
+    --lilac: #c084fc;
+    --lilac-light: #f3e8ff;
+    --cream: #fff8f0;
+    --text: #3b2a4a;
+    --text-soft: #7c6a8a;
+    --shadow: rgba(180, 100, 160, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 20%, #fce7f3 0%, transparent 35%),
+      radial-gradient(circle at 85% 75%, #f3e8ff 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, #fff8f0 0%, transparent 60%);
+  }
+  .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart-float {
+    position: absolute; font-size: 1.2rem; opacity: 0.06;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.08; }
+    90% { opacity: 0.06; }
+    100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* Loading bar */
+#loadingBar {
+  display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #f472b6, #c084fc, #f472b6);
+  background-size: 200%; animation: shimmer 1.2s linear infinite; z-index: 400;
+}
+
+/* Setup banner */
+#setupBanner {
+  display: none; position: fixed; inset: 0;
+  background: rgba(59,42,74,0.75); backdrop-filter: blur(8px);
+  z-index: 300; align-items: center; justify-content: center; padding: 1rem;
+}
+.setup-box {
+  background: white; border-radius: 24px; padding: 2rem;
+  max-width: 500px; width: 100%;
+  box-shadow: 0 20px 60px rgba(180,100,160,0.35);
+  max-height: 90vh; overflow-y: auto;
+}
+.setup-box h2 {
+  font-family: 'Playfair Display', serif; color: var(--rose-dark);
+  text-align: center; margin-bottom: 0.8rem; font-size: 1.4rem;
+}
+.setup-box p { color: var(--text-soft); font-size: 0.88rem; line-height: 1.6; margin-bottom: 1rem; }
+.setup-box ol { color: var(--text); font-size: 0.85rem; line-height: 2.1; padding-left: 1.4rem; margin-bottom: 1.2rem; }
+.setup-box code {
+  background: var(--rose-light); padding: 2px 6px; border-radius: 6px;
+  font-size: 0.82rem; color: var(--rose-dark);
+}
+.setup-box a { color: var(--rose-dark); font-weight: 700; }
+.setup-close {
+  width: 100%; padding: 12px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--rose), var(--lilac));
+  color: white; font-family: 'Nunito', sans-serif; font-weight: 800;
+  font-size: 1rem; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(244,114,182,0.35);
+}
+
+header {
+  text-align: center; padding: 3rem 1rem 1.5rem;
+  position: relative; z-index: 1;
+}
+header .stars { font-size: 1.4rem; letter-spacing: 4px; margin-bottom: 0.5rem; }
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  background: linear-gradient(135deg, var(--rose-dark), var(--lilac), var(--rose));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1.1; margin-bottom: 0.5rem;
+}
+header p { color: var(--text-soft); font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
+
+.legend {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  padding: 0.5rem 1rem 1.5rem; position: relative; z-index: 1;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-soft); }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-free { background: linear-gradient(135deg, var(--rose), var(--lilac)); }
+.dot-booked { background: #a3a3a3; }
+
+.categories {
+  display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;
+  padding: 0 1rem 1.5rem; position: relative; z-index: 1;
+}
+.cat-btn {
+  padding: 6px 16px; border-radius: 999px; border: 2px solid transparent;
+  font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; background: white;
+  color: var(--text-soft); box-shadow: 0 2px 8px var(--shadow);
+}
+.cat-btn.active, .cat-btn:hover {
+  background: linear-gradient(135deg, var(--rose), var(--lilac));
+  color: white; box-shadow: 0 4px 14px rgba(244,114,182,0.35);
+}
+
+main {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 1rem 4rem; position: relative; z-index: 1;
+}
+.section-title {
+  font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic;
+  color: var(--rose-dark); margin: 2rem 0 1rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--rose-light), transparent);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+.card {
+  background: white; border-radius: 20px;
+  box-shadow: 0 4px 20px var(--shadow);
+  overflow: hidden; transition: all 0.3s;
+  position: relative; display: flex; flex-direction: column;
+  animation: fadeIn 0.4s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px var(--shadow); }
+.card.booked { opacity: 0.65; }
+.card.booked::after {
+  content: '🎀 Забронировано'; position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.95); border-radius: 999px;
+  font-size: 0.72rem; font-weight: 800; color: var(--text-soft);
+  padding: 4px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.card-emoji {
+  height: 110px; display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem;
+  background: linear-gradient(135deg, var(--rose-light) 0%, var(--lilac-light) 100%);
+}
+.card-body { padding: 1rem 1.1rem 1.1rem; flex: 1; display: flex; flex-direction: column; }
+.card-category { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--rose); margin-bottom: 4px; }
+.card-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+.card-note { font-size: 0.78rem; color: var(--text-soft); margin-bottom: 0.7rem; flex: 1; }
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-link {
+  flex: 1; min-width: 80px;
+  padding: 8px 12px; border-radius: 12px; border: none; cursor: pointer;
+  font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800;
+  text-decoration: none; text-align: center; display: inline-flex;
+  align-items: center; justify-content: center; gap: 4px;
+  background: var(--rose-light); color: var(--rose-dark); transition: all 0.2s;
+}
+.btn-link:hover {
+  background: linear-gradient(135deg, var(--rose), var(--lilac));
+  color: white; box-shadow: 0 4px 12px rgba(244,114,182,0.35); transform: translateY(-1px);
+}
+.btn-book {
+  flex: 1; min-width: 80px;
+  padding: 8px 12px; border-radius: 12px; border: none; cursor: pointer;
+  font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--rose), var(--lilac));
+  color: white; transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(244,114,182,0.3);
+}
+.btn-book:hover { box-shadow: 0 4px 16px rgba(244,114,182,0.5); transform: translateY(-1px); }
+.btn-book:disabled { background: #d1d5db; color: #9ca3af; box-shadow: none; cursor: not-allowed; transform: none; }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(59,42,74,0.5);
+  backdrop-filter: blur(6px); z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border-radius: 24px; padding: 2rem;
+  max-width: 420px; width: 100%;
+  box-shadow: 0 20px 60px rgba(180,100,160,0.3);
+  transform: scale(0.9); transition: transform 0.25s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--rose-dark); margin-bottom: 0.4rem; }
+.modal p { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1.2rem; }
+.modal input, .modal textarea {
+  width: 100%; padding: 10px 14px; border-radius: 12px;
+  border: 2px solid var(--rose-light); font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; color: var(--text); margin-bottom: 0.8rem;
+  outline: none; transition: border-color 0.2s;
+}
+.modal input:focus, .modal textarea:focus { border-color: var(--rose); }
+.modal textarea { height: 70px; resize: none; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-cancel {
+  flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--rose-light);
+  background: white; font-family: 'Nunito', sans-serif; font-weight: 700;
+  font-size: 0.9rem; cursor: pointer; color: var(--text-soft); transition: all 0.2s;
+}
+.modal-cancel:hover { border-color: var(--rose); color: var(--rose); }
+.modal-confirm {
+  flex: 2; padding: 10px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--rose), var(--lilac));
+  font-family: 'Nunito', sans-serif; font-weight: 800;
+  font-size: 0.9rem; cursor: pointer; color: white;
+  box-shadow: 0 4px 14px rgba(244,114,182,0.35); transition: all 0.2s;
+}
+.modal-confirm:hover { box-shadow: 0 6px 20px rgba(244,114,182,0.5); }
+
+.toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: linear-gradient(135deg, var(--rose-dark), var(--lilac));
+  color: white; padding: 12px 24px; border-radius: 999px;
+  font-weight: 800; font-size: 0.9rem; z-index: 200;
+  box-shadow: 0 6px 20px rgba(244,114,182,0.4);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+footer { text-align: center; padding: 2rem 1rem; color: var(--text-soft); font-size: 0.8rem; position: relative; z-index: 1; }
+footer span { color: var(--rose); }
+</style>
+</head>
+<body>
+
+<div id="loadingBar"></div>
+
+<!-- Setup Banner -->
+<div id="setupBanner">
+  <div class="setup-box">
+    <div style="font-size:2.2rem;text-align:center;margin-bottom:0.5rem">⚙️</div>
+    <h2>Настройка общих броней</h2>
+    <p>Чтобы все гости видели одни и те же брони, нужно один раз создать бесплатное хранилище на <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> и вставить два ключа в файл.</p>
+    <ol>
+      <li>Зайдите на <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <b>Sign Up</b> (бесплатно)</li>
+      <li>Нажмите <b>+ New Bin</b>, вставьте <code>{}</code>, нажмите <b>Create</b></li>
+      <li>Скопируйте <b>BIN ID</b> — длинный код в адресной строке после <code>/b/</code></li>
+      <li>В меню <b>API Keys</b> создайте ключ и скопируйте его</li>
+      <li>Откройте <b>index.html</b> в любом текстовом редакторе (Блокнот, VS Code)</li>
+      <li>Найдите строки в начале скрипта:<br>
+        <code>const BIN_ID = "";</code><br>
+        <code>const API_KEY = "";</code><br>
+        и вставьте свои значения внутрь кавычек
+      </li>
+      <li>Выложите файл на <a href="https://pages.github.com" target="_blank">GitHub Pages</a> (бесплатно) — и готовая ссылка делится с гостями!</li>
+    </ol>
+    <p style="background:var(--rose-light);border-radius:12px;padding:10px;margin-bottom:1.2rem;">
+      💡 <b>Пока ключи не заполнены</b> — брони сохраняются только в вашем браузере (localStorage). Всё остальное работает полностью.
+    </p>
+    <button class="setup-close" onclick="document.getElementById('setupBanner').style.display='none'">Понятно, закрыть ✨</button>
+  </div>
+</div>
+
+<div class="hearts-bg" id="heartsContainer"></div>
+
+<header>
+  <div class="stars">✨ 🌸 ✨</div>
+  <h1>Вишлист Бьянки</h1>
+  <p>Нажми «Забронировать» и выбери подарок 🎁</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot dot-free"></div> Свободно</div>
+  <div class="legend-item"><div class="dot dot-booked"></div> Уже забронировано</div>
+</div>
+
+<div class="categories" id="categories"></div>
+
+<main id="main"></main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>🎁 Забронировать подарок</h2>
+    <p id="modalItemName">—</p>
+    <input type="text" id="modalName" placeholder="Ваше имя (необязательно)" />
+    <textarea id="modalNote" placeholder="Сообщение для Бьянки (необязательно) 💌"></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="modalCancel">Отмена</button>
+      <button class="modal-confirm" id="modalConfirm">Забронировать ✨</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">🎉 Подарок забронирован!</div>
+
+<footer>Сделано с <span>♥️</span> для Бьянки</footer>
+
+<script>
+// ============================================================
+// НАСТРОЙКА: вставьте ваши ключи от jsonbin.io
+// ============================================================
+const BIN_ID  = "6a05aeec250b1311c34bdd9a";
+const API_KEY = "$2a$10$a8OcKbifwpMxTVJWxa7YyuRUiGHdbSwEXHiL47verpSh.S6Wg12q.";
+// ============================================================
+
+const FALLBACK_KEY = "bianca_wishlist_2025";
+const useCloud = BIN_ID && API_KEY;
+
+let booked = {};
+let saveTimer = null;
+
+async function loadBooked() {
+  if (!useCloud) {
+    booked = JSON.parse(localStorage.getItem(FALLBACK_KEY) || "{}");
+    renderItems();
+    return;
+  }
+  setLoading(true);
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Access-Key": API_KEY }
+    });
+    const data = await r.json();
+    const cloud = data.record || {};
+    // Keep only numeric item IDs, discard any service keys
+    Object.keys(cloud).forEach(k => { if (isNaN(k)) delete cloud[k]; });
+    booked = cloud;
+    // Keep local in sync with cloud as offline backup
+    localStorage.setItem(FALLBACK_KEY, JSON.stringify(booked));
+  } catch(e) {
+    // Network error — fall back to local cache
+    booked = JSON.parse(localStorage.getItem(FALLBACK_KEY) || "{}");
+  }
+  setLoading(false);
+  renderItems();
+}
+
+async function saveBooked() {
+  localStorage.setItem(FALLBACK_KEY, JSON.stringify(booked));
+  if (!useCloud) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-Access-Key": API_KEY },
+        body: JSON.stringify(booked)
+      });
+    } catch(e) { console.warn("Cloud save failed, local backup used", e); }
+  }, 300);
+}
+
+function setLoading(on) {
+  document.getElementById("loadingBar").style.display = on ? "block" : "none";
+}
+
+const items = [
+  // Игрушки
+  { id: 1,  category: "Игрушки",        emoji: "🐾", name: "Littlest Pet Shop — Дискотека",             note: "Игровой набор с аксессуарами",           url: "https://bunnyhill.ru/catalog/igrovoy-nabor-littlest-pet-shop-diskoteka-s-aksessuarami/" },
+  { id: 2,  category: "Игрушки",        emoji: "🐼", name: "LPS — Станция стиля (панда, шиншилла, енот)", note: "Большой игровой набор «Сюжет»",         url: "https://bunnyhill.ru/catalog/bolshoy-igrovoy-nabor-littlest-pet-shop-syuzhet-stantsiya-stilya-panda-shinshilla-enot/" },
+  { id: 4,  category: "Игрушки",        emoji: "🦊", name: "Тинели — фигурка",                           note: "Магическая фигурка",                    url: "https://ozon.ru/t/p5i0nBJ" },
+  { id: 5,  category: "Игрушки",        emoji: "🌹", name: "Тинели — магазин с розами",                  note: "Игровой набор",                         url: "https://ozon.ru/t/yCYmn5F" },
+  { id: 6,  category: "Игрушки",        emoji: "✨", name: "Тинели — ещё одна фигурка",                  note: "Коллекционная фигурка",                 url: "https://ozon.ru/t/wGM6A4O" },
+  { id: 25, category: "Игрушки",        emoji: "🔍", name: "Лупа Little Dutch Fairy Garden",             note: "Авито СПб",                             url: "https://www.avito.ru/sankt-peterburg/tovary_dlya_detey_i_igrushki/v_nalichii_lupa_little_dutch_fairy_garden_8097144365" },
+  { id: 26, category: "Игрушки",        emoji: "🌱", name: "Набор для садоводства Little Dutch",         note: "Авито СПб",                             url: "https://www.avito.ru/sankt-peterburg/tovary_dlya_detey_i_igrushki/v_nalichii_nabor_dlya_sadovodstva_little_dutch_8097314135" },
+  { id: 27, category: "Игрушки",        emoji: "🐛", name: "Баночка для насекомых Little Dutch",         note: "Авито СПб",                             url: "https://www.avito.ru/sankt-peterburg/tovary_dlya_detey_i_igrushki/v_nalichii_banochka_dlya_nasekomyh_little_dutch_8065416191" },
+  { id: 7,  category: "Игрушки",        emoji: "🎒", name: "Рюкзак-переноска La Nina для кукол",         note: "арт. 65132, Испания — Dolly Land",       url: "https://dolly-land.ru/goods/141/1224/riukzak-perenoska-la-nina-dlia-kukol-art-65132" },
+  // Игры
+  { id: 10, category: "Игры",           emoji: "🦊", name: "Настольная игра «Коварный лис»",             note: "Весёлая игра для компании",             url: "https://ozon.ru/t/C6gKsFj" },
+  { id: 11, category: "Игры",           emoji: "🎨", name: "Набор для творчества №1",                    note: "С Ozon",                                url: "https://ozon.ru/t/6dT3Z2u" },
+  { id: 12, category: "Игры",           emoji: "🎨", name: "Набор для творчества №2",                    note: "С Ozon",                                url: "https://ozon.ru/t/c0PBt5m" },
+  { id: 13, category: "Игрушки",        emoji: "🎵", name: "Музыкальная шкатулка",                       note: "С Ozon",                                url: "https://ozon.ru/t/lwzC1nw" },
+  // Одежда и обувь
+  { id: 15, category: "Одежда и обувь", emoji: "👟", name: "Кроссовки с колёсиками",                     note: "Ролики-кроссовки",                      url: "https://www.ozon.ru/product/krossovki-1625839707/?at=Z8tXwKOWrHJnnM3jFMYDZJNfGWl5ojsVY7lGoCEKQYql&from_sku=1625839821&oos_search=false" },
+  { id: 16, category: "Одежда и обувь", emoji: "🩴", name: "Сабо Lamoda",                                note: "Размер J2 (32/33)",                     url: "https://www.lamoda.ru/p/RTLAEX457601/" },
+  { id: 17, category: "Одежда и обувь", emoji: "🌈", name: "Джиббитсы для Crocs — 5 шт.",               note: "Украшения для кроксов",                 url: "https://www.lamoda.ru/p/RTLAEX716301/" },
+  { id: 19, category: "Одежда и обувь", emoji: "🧥", name: "Свитшот PDCHILL",                            note: "128 размер",                            url: "https://www.lamoda.ru/p/RTLAFA251201/" },
+  { id: 20, category: "Одежда и обувь", emoji: "👕", name: "Лонгслив PDDECK",                            note: "128 размер",                            url: "https://www.lamoda.ru/p/RTLAEZ605401/" },
+  { id: 28, category: "Одежда и обувь", emoji: "🩰", name: "Юбка-пачка Mimi Lula Tutu",                  note: "Авито СПб",                             url: "https://www.avito.ru/sankt-peterburg/detskaya_odezhda_i_obuv/v_nalichii_yubka_pachka_mimi_lula_tutu_7968983215" },
+  // Аксессуары
+  { id: 21, category: "Аксессуары",     emoji: "👜", name: "Сумка поясная",                              note: "Lamoda",                                url: "https://www.lamoda.ru/p/XD001XG0052U/" },
+  // Сертификаты
+  { id: 22, category: "Сертификаты",    emoji: "🎫", name: "Сертификат на Ламоду",                       note: "Бьянка обожает наряжаться 💃",          url: "https://www.lamoda.ru/giftcertificate/?redirect_search_value=%D1%81%D0%B5%D1%80%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82+%D0%BF%D0%BE%D0%B4%D0%B0%D1%80%D0%BE%D1%87%D0%BD%D1%8B%D0%B9" },
+  { id: 23, category: "Сертификаты",    emoji: "🎭", name: "Сертификат на билеты в театр",               note: "На любой спектакль на выбор",           url: "https://www.ticketland.ru/giftcards/purchase/" },
+];
+
+const categories = ["Все", ...new Set(items.map(i => i.category))];
+let activeCategory = "Все";
+
+const catEl = document.getElementById("categories");
+categories.forEach(cat => {
+  const btn = document.createElement("button");
+  btn.className = "cat-btn" + (cat === activeCategory ? " active" : "");
+  btn.textContent = cat;
+  btn.onclick = () => {
+    activeCategory = cat;
+    document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderItems();
+  };
+  catEl.appendChild(btn);
+});
+
+function renderItems() {
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  const filtered = activeCategory === "Все" ? items : items.filter(i => i.category === activeCategory);
+  const byCat = {};
+  filtered.forEach(item => {
+    if (!byCat[item.category]) byCat[item.category] = [];
+    byCat[item.category].push(item);
+  });
+  Object.entries(byCat).forEach(([cat, catItems], ci) => {
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = catItems[0].emoji + " " + cat;
+    main.appendChild(title);
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    catItems.forEach((item, idx) => {
+      const isBooked = !!booked[item.id];
+      const b = booked[item.id] || {};
+      const card = document.createElement("div");
+      card.className = "card" + (isBooked ? " booked" : "");
+      card.style.animationDelay = `${(ci * 4 + idx) * 0.05}s`;
+      card.innerHTML = `
+        <div class="card-emoji">${item.emoji}</div>
+        <div class="card-body">
+          <div class="card-category">${item.category}</div>
+          <div class="card-name">${item.name}</div>
+          <div class="card-note">${item.note}${isBooked && b.name ? `<br><br>🎀 Бронь: <b>${b.name}</b>` : ''}${isBooked && b.msg ? `<br><i>"${b.msg}"</i>` : ''}</div>
+          <div class="card-actions">
+            ${item.url ? `<a class="btn-link" href="${item.url}" target="_blank">🔗 Открыть</a>` : ''}
+            <button class="btn-book" data-id="${item.id}" ${isBooked ? 'disabled' : ''}>
+              ${isBooked ? '✓ Забронировано' : '🎁 Забронировать'}
+            </button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    main.appendChild(grid);
+  });
+  document.querySelectorAll(".btn-book:not(:disabled)").forEach(btn => {
+    btn.addEventListener("click", () => openModal(+btn.dataset.id));
+  });
+}
+
+// Modal
+let pendingId = null;
+const overlay = document.getElementById("modalOverlay");
+const modalNameEl = document.getElementById("modalName");
+const modalNoteEl = document.getElementById("modalNote");
+const modalItemName = document.getElementById("modalItemName");
+
+function openModal(id) {
+  pendingId = id;
+  const item = items.find(i => i.id === id);
+  modalItemName.textContent = item.emoji + " " + item.name;
+  modalNameEl.value = "";
+  modalNoteEl.value = "";
+  overlay.classList.add("open");
+}
+document.getElementById("modalCancel").onclick = () => { overlay.classList.remove("open"); pendingId = null; };
+overlay.addEventListener("click", e => { if (e.target === overlay) { overlay.classList.remove("open"); pendingId = null; } });
+document.getElementById("modalConfirm").onclick = async () => {
+  if (!pendingId) return;
+  booked[pendingId] = { name: modalNameEl.value.trim() || "Аноним", msg: modalNoteEl.value.trim(), ts: Date.now() };
+  overlay.classList.remove("open");
+  renderItems();
+  showToast("🎉 Подарок забронирован!");
+  await saveBooked();
+  pendingId = null;
+};
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// Secret reset: 5 clicks on the heading
+let resetClicks = 0, resetTimer = null;
+document.querySelector('header h1').addEventListener('click', () => {
+  resetClicks++;
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(() => { resetClicks = 0; }, 2000);
+  if (resetClicks >= 5) {
+    resetClicks = 0;
+    if (!confirm('Сбросить все брони? Это действие нельзя отменить.')) return;
+    booked = {};
+    localStorage.removeItem(FALLBACK_KEY);
+    saveBooked();
+    renderItems();
+    showToast('🗑️ Все брони сброшены');
+  }
+});
+
+// Floating hearts
+const container = document.getElementById("heartsContainer");
+const symbols = ["♥️","🌸","✨","🎀","⭐","💜","🌷"];
+for (let i = 0; i < 18; i++) {
+  const h = document.createElement("div");
+  h.className = "heart-float";
+  h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+  h.style.left = Math.random() * 100 + "%";
+  h.style.animationDuration = (8 + Math.random() * 14) + "s";
+  h.style.animationDelay = (Math.random() * 12) + "s";
+  h.style.fontSize = (0.8 + Math.random() * 1.4) + "rem";
+  container.appendChild(h);
+}
+
+// Show setup banner if not configured
+if (!useCloud) {
+  document.getElementById("setupBanner").style.display = "flex";
+}
+
+loadBooked();
+</script>
+
+</body>
+</html>
